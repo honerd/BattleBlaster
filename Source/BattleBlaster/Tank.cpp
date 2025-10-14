@@ -2,6 +2,8 @@
 
 
 #include "Tank.h"
+#include "InputMappingContext.h"
+#include "Kismet/GameplayStatics.h"
 
 void ATank::BeginPlay()
 {
@@ -50,4 +52,30 @@ void ATank::Tick(float DeltaTime)
 void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (PlayerInputComponent)
+	{
+		auto EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+		if (EnhancedInputComponent)
+		{
+			// This binds a move input to the needed value
+			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATank::MoveInput);
+		}
+	}
+}
+
+void ATank::MoveInput(const FInputActionValue& value)
+{
+	auto valueGained = value.Get<FVector2D>();
+
+	/*UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("X: %f, Y: %f"),
+		valueGained.X,
+		valueGained.Y
+	);*/
+
+	// Gets the local forward actor of the tank
+	AddActorLocalOffset(FVector(valueGained.X * Speed * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), valueGained.Y * Speed * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 0.0f),true);
 }

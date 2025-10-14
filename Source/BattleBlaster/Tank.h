@@ -6,8 +6,10 @@
 #include "BasePawn.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
+#include "InputAction.h"
+#include "InputActionValue.h"
+#include "EnhancedInputComponent.h"
 #include "Tank.generated.h"
 
 /**
@@ -31,13 +33,21 @@ class BATTLEBLASTER_API ATank : public ABasePawn
 		// Called to bind functionality to input
 		virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+		void MoveInput(const FInputActionValue& value);
+
 		UPROPERTY(EditAnywhere, Category = "Input")
-		UInputMappingContext* DefaultMappingContext;
+		class UInputMappingContext* DefaultMappingContext; // Forward declaration improves the performance of the build
 
 		UPROPERTY(VisibleAnywhere)
 		USpringArmComponent* SpringArmComp;
 
 		UPROPERTY(VisibleAnywhere)
 		UCameraComponent* CameraComp;
+
+		UPROPERTY(EditAnywhere, Category = "Input")
+		UInputAction* MoveAction;
+
+		UPROPERTY(EditAnywhere)
+		float Speed = 300.f;
 
 };
