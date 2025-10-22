@@ -44,3 +44,15 @@ void ABasePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void ABasePawn::RotateTurret(FVector LookAtTarget)
+{
+	// Take the vector diff to find the loction of the debug sphere relative to the turret
+	// Then rotate only on the yaw axis to face the target
+	FVector ToTarget = LookAtTarget - TurretMesh->GetComponentLocation();
+	FRotator LookAtRotation = FRotator(0.f, ToTarget.Rotation().Yaw, 0.f);
+
+	// Smoothens the rotator
+	auto interpolatedRotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), LookAtRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
+	TurretMesh->SetWorldRotation(interpolatedRotation);
+}
+

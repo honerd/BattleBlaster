@@ -57,18 +57,16 @@ void ATank::Tick(float DeltaTime)
 		FHitResult HitResult;
 		playerController->GetHitResultUnderCursor(ECC_Visibility, false, OUT HitResult);
 		
-		// we do an impact point trace
+		// we do an impact point trace and rotate the turret to there
 		auto impactPoint = HitResult.ImpactPoint;
-		DrawDebugSphere(GetWorld(), impactPoint, 25.0f, 12, FColor::Green);
-
-		if (HitResult.bBlockingHit)
-		{
-			AActor* HitActor = HitResult.GetActor();
-			UPrimitiveComponent* HitComp = HitResult.Component.Get(); // or HitResult.GetComponent() on some engine versions
-
-			UE_LOG(LogTemp, Log, TEXT("Hit actor: %s"), *GetNameSafe(HitActor));
-			UE_LOG(LogTemp, Log, TEXT("Hit component: %s"), *GetNameSafe(HitComp));
-		}
+		DrawDebugSphere(
+			GetWorld(),
+			impactPoint,
+			25.f,
+			12,
+			FColor::Red
+		);
+		RotateTurret(impactPoint);
 	}
 }
 
@@ -93,6 +91,7 @@ void ATank::MoveInput(const FInputActionValue& value)
 	auto valueGained = value.Get<float>();
 
 	// Gets the local forward actor of the tank
+	// Second input is a sweep. This allows to check the collision while moving
 	AddActorLocalOffset(FVector(valueGained * Speed * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 0.0f, 0.0f), true);
 }
 
