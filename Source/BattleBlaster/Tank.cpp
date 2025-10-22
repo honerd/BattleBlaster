@@ -60,22 +60,24 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		{
 			// This binds a move input to the needed value
 			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATank::MoveInput);
+			EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Triggered, this, &ATank::RotateInput);
 		}
 	}
 }
 
 void ATank::MoveInput(const FInputActionValue& value)
 {
-	auto valueGained = value.Get<FVector2D>();
-
-	/*UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("X: %f, Y: %f"),
-		valueGained.X,
-		valueGained.Y
-	);*/
+	auto valueGained = value.Get<float>();
 
 	// Gets the local forward actor of the tank
-	AddActorLocalOffset(FVector(valueGained.X * Speed * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), valueGained.Y * Speed * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 0.0f),true);
+	AddActorLocalOffset(FVector(valueGained * Speed * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 0.0f, 0.0f));
+}
+
+void ATank::RotateInput(const FInputActionValue& value)
+{
+	auto valueGained = value.Get<float>();
+
+	// FRotator has the pitch, yaw and roll values. These values are not X, Y, Z. 
+	// Yaw is the rotation around the Z axis
+	AddActorLocalRotation(FRotator(0.0f, valueGained * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 0.0f), true);
 }
