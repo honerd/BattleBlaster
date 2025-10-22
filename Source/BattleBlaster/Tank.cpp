@@ -47,6 +47,29 @@ ATank::ATank()
 
 void ATank::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
+	// Creating a line trace to the cursor everyframe
+	auto playerController = static_cast<APlayerController*>(GetController());
+
+	if (playerController)
+	{
+		FHitResult HitResult;
+		playerController->GetHitResultUnderCursor(ECC_Visibility, false, OUT HitResult);
+		
+		// we do an impact point trace
+		auto impactPoint = HitResult.ImpactPoint;
+		DrawDebugSphere(GetWorld(), impactPoint, 25.0f, 12, FColor::Green);
+
+		if (HitResult.bBlockingHit)
+		{
+			AActor* HitActor = HitResult.GetActor();
+			UPrimitiveComponent* HitComp = HitResult.Component.Get(); // or HitResult.GetComponent() on some engine versions
+
+			UE_LOG(LogTemp, Log, TEXT("Hit actor: %s"), *GetNameSafe(HitActor));
+			UE_LOG(LogTemp, Log, TEXT("Hit component: %s"), *GetNameSafe(HitComp));
+		}
+	}
 }
 
 void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -70,7 +93,7 @@ void ATank::MoveInput(const FInputActionValue& value)
 	auto valueGained = value.Get<float>();
 
 	// Gets the local forward actor of the tank
-	AddActorLocalOffset(FVector(valueGained * Speed * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 0.0f, 0.0f));
+	AddActorLocalOffset(FVector(valueGained * Speed * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 0.0f, 0.0f), true);
 }
 
 void ATank::RotateInput(const FInputActionValue& value)
