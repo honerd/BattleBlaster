@@ -3,7 +3,6 @@
 
 #include "BattleBlasterGameMode.h"
 #include "Tower.h"
-#include "BattleBlasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 void ABattleBlasterGameMode::BeginPlay()
@@ -31,6 +30,16 @@ void ABattleBlasterGameMode::BeginPlay()
 		}
 	}
 
+	auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (playerController)
+	{
+		screenMessageWidget = CreateWidget<UScreenMessage>(playerController, ScreenMessageClass);
+		if (screenMessageWidget)
+		{
+			screenMessageWidget->AddToPlayerScreen();
+		}
+
+	}
 	countdownSeconds = gameplayTimer;
 
 	GetWorldTimerManager().SetTimer(
@@ -68,6 +77,11 @@ void ABattleBlasterGameMode::ActorDied(AActor* DeadActor)
 	if (gameOver)
 	{
 		FString message = victory ? "You win" : "You Died";
+		if (screenMessageWidget)
+		{
+			screenMessageWidget->SetVisibility(ESlateVisibility::Visible);
+			screenMessageWidget->SetMessageText(message);
+		}
 		FTimerHandle GameOverTimerHandle;
 		GetWorldTimerManager().SetTimer(
 			GameOverTimerHandle,
@@ -85,13 +99,16 @@ void ABattleBlasterGameMode::OnGameOvertimeout()
 	if (gameInstance)
 	{
 		auto bbGameInstance = static_cast<UBattleBlasterGameInstance*>(gameInstance);
-		if (victory)
+		if (bbGameInstance)
 		{
-			bbGameInstance->LoadNextLevel();
-		}
-		else
-		{
-			bbGameInstance->RestartCurrentLevel();
+			if (victory)
+			{
+				bbGameInstance->LoadNextLevel();
+			}
+			else
+			{
+				bbGameInstance->RestartCurrentLevel();
+			}
 		}
 	}
 	
@@ -99,9 +116,19 @@ void ABattleBlasterGameMode::OnGameOvertimeout()
 
 void ABattleBlasterGameMode::OnCountdownTimeout()
 {
-	countdownSeconds--;
-	if (countdownSeconds <= 0)
+	if (screenMessageWidget)
 	{
+		screenMessageWidget->SetMessageText(FString::Printf(TEXT("Game starts in %d"), countdownSeconds));
+	}
+
+	countdownSeconds--;
+
+	if (countdownSeconds < 0)
+	{
+		if (screenMessageWidget)
+		{
+			screenMessageWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
 		GetWorldTimerManager().ClearTimer(CountdownTimerHandle);
 		Tank->SetPlayerEnabled(true);
 	}

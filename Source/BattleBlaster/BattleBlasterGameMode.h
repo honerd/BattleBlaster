@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "Tank.h"
+#include "ScreenMessage.h"
+#include "BattleBlasterGameInstance.h"
 #include "BattleBlasterGameMode.generated.h"
 
 /**
@@ -27,6 +29,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	int32 gameplayTimer = 3;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UScreenMessage> ScreenMessageClass;
+
+	UScreenMessage* screenMessageWidget;
+
 	int32 countdownSeconds;
 
 	FTimerHandle CountdownTimerHandle;
@@ -39,4 +46,5 @@ public:
 	void OnGameOvertimeout();
 
 	void OnCountdownTimeout();
+
 };
