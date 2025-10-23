@@ -54,4 +54,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	UNiagaraSystem* DeathParticles;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* DeathSound;
+
 };
