@@ -37,6 +37,8 @@ class BATTLEBLASTER_API ATank : public ABasePawn
 
 		void RotateInput(const FInputActionValue& value);
 
+		void FireInput(const FInputActionValue& value);
+
 		UPROPERTY(EditAnywhere, Category = "Input")
 		class UInputMappingContext* DefaultMappingContext; // Forward declaration improves the performance of the build
 
@@ -51,6 +53,9 @@ class BATTLEBLASTER_API ATank : public ABasePawn
 
 		UPROPERTY(EditAnywhere, Category = "Input")
 		UInputAction* RotateAction;
+
+		UPROPERTY(EditAnywhere, Category = "Input")
+		UInputAction* FireAction;
 
 		UPROPERTY(EditAnywhere)
 		float Speed = 300.f;

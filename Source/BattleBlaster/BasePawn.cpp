@@ -21,13 +21,16 @@ ABasePawn::ABasePawn()
 	// Set turret mesh and attach to base mesh
 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretMesh"));
 	TurretMesh->SetupAttachment(BaseMesh);
+
+	ProjectileSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ProjectileSpawnPoint"));
+	ProjectileSpawnPoint->SetupAttachment(TurretMesh);
 }
 
 // Called when the game starts or when spawned
 void ABasePawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -54,5 +57,22 @@ void ABasePawn::RotateTurret(FVector LookAtTarget)
 	// Smoothens the rotator
 	auto interpolatedRotation = FMath::RInterpTo(TurretMesh->GetComponentRotation(), LookAtRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
 	TurretMesh->SetWorldRotation(interpolatedRotation);
+}
+
+void ABasePawn::Fire()
+{
+	auto spawnLocation = ProjectileSpawnPoint->GetComponentLocation();
+	auto spawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+
+	auto projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, spawnLocation, spawnRotation);
+	if (projectile)
+	{
+		projectile->SetOwner(this);
+	}
+}
+
+void ABasePawn::HandleDestruction()
+{
+	Destroy();
 }
 

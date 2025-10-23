@@ -26,5 +26,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	ATank* TankPawn;
+	void FireBullet();
+
+	ATank* Tank;
+
+	UPROPERTY(EditAnywhere)
+	float FireRange = 1000.f;
+
+	UPROPERTY(EditAnywhere)
+	float FireRate = 2.f;
+
 };

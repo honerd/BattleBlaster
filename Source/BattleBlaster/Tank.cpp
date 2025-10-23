@@ -82,6 +82,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 			// This binds a move input to the needed value
 			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATank::MoveInput);
 			EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Triggered, this, &ATank::RotateInput);
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ATank::FireInput);
 		}
 	}
 }
@@ -102,4 +103,10 @@ void ATank::RotateInput(const FInputActionValue& value)
 	// FRotator has the pitch, yaw and roll values. These values are not X, Y, Z. 
 	// Yaw is the rotation around the Z axis
 	AddActorLocalRotation(FRotator(0.0f, valueGained * TurnRate * UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), 0.0f), true);
+}
+
+void ATank::FireInput(const FInputActionValue& /*value*/)
+{
+	UE_LOG(LogTemp, Display, TEXT("Fire Input received by Tank"));
+	Fire();
 }
