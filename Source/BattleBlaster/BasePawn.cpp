@@ -2,6 +2,7 @@
 
 
 #include "BasePawn.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 ABasePawn::ABasePawn()
@@ -73,6 +74,9 @@ void ABasePawn::Fire()
 
 void ABasePawn::HandleDestruction()
 {
-	
+	if (DeathParticles)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), DeathParticles, GetActorLocation(), GetActorRotation());
+	}
 }
 

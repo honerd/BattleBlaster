@@ -11,6 +11,8 @@ AProjectile::AProjectile()
 
 	// Any movement component, or actor component for that matter, doesn't have to be attached to anything
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
+	TrailParticles = CreateDefaultSubobject<UNiagaraComponent>(TEXT("TrailParticles"));
+	TrailParticles->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -31,10 +33,15 @@ void AProjectile::Tick(float DeltaTime)
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	auto strongThis = this;
-	auto owner = GetOwner();
+	AActor* owner = GetOwner();
 	if (OtherActor && OtherActor!= strongThis && OtherActor != owner, owner)
 	{
 		UGameplayStatics::ApplyDamage(OtherActor, Damage, owner->GetInstigatorController(), this, UDamageType::StaticClass());
+
+		if (HitParticles)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitParticles, GetActorLocation(), GetActorRotation());
+		}
 	}
 	// Destroy on Hit
 	Destroy();
