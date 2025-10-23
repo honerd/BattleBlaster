@@ -3,6 +3,7 @@
 
 #include "BattleBlasterGameMode.h"
 #include "Tower.h"
+#include "BattleBlasterGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 void ABattleBlasterGameMode::BeginPlay()
@@ -29,13 +30,25 @@ void ABattleBlasterGameMode::BeginPlay()
 			tower->Tank = Tank;
 		}
 	}
+
+	countdownSeconds = gameplayTimer;
+
+	GetWorldTimerManager().SetTimer(
+		CountdownTimerHandle,
+		this,
+		&ABattleBlasterGameMode::OnCountdownTimeout,
+		1.0f,
+		true
+	);
 }
 
 void ABattleBlasterGameMode::ActorDied(AActor* DeadActor)
 {
+	auto gameOver = false;
 	if (DeadActor == Tank)
 	{
 		Tank->HandleDestruction();
+		gameOver = true;
 	}
 	else
 	{
@@ -46,9 +59,50 @@ void ABattleBlasterGameMode::ActorDied(AActor* DeadActor)
 			TowerCount--;
 			if (TowerCount <= 0)
 			{
-				// Win the game
-				UE_LOG(LogTemp, Warning, TEXT("You win!"));
+				gameOver = true;
+				victory = true;
 			}
 		}
+	}
+
+	if (gameOver)
+	{
+		FString message = victory ? "You win" : "You Died";
+		FTimerHandle GameOverTimerHandle;
+		GetWorldTimerManager().SetTimer(
+			GameOverTimerHandle,
+			this,
+			&ABattleBlasterGameMode::OnGameOvertimeout,
+			GameOverDelay,
+			false
+		);
+	}
+}
+
+void ABattleBlasterGameMode::OnGameOvertimeout()
+{
+	auto gameInstance = GetGameInstance();
+	if (gameInstance)
+	{
+		auto bbGameInstance = static_cast<UBattleBlasterGameInstance*>(gameInstance);
+		if (victory)
+		{
+			bbGameInstance->LoadNextLevel();
+		}
+		else
+		{
+			bbGameInstance->RestartCurrentLevel();
+		}
+	}
+	
+}
+
+void ABattleBlasterGameMode::OnCountdownTimeout()
+{
+	countdownSeconds--;
+	if (countdownSeconds <= 0)
+	{
+		GetWorldTimerManager().ClearTimer(CountdownTimerHandle);
+		Tank->SetPlayerEnabled(true);
 	}
 }

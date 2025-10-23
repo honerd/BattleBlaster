@@ -20,9 +20,13 @@ class BATTLEBLASTER_API ATank : public ABasePawn
 {
 	GENERATED_BODY()
 
+	private:
+
+		bool isAlive = true;
 	protected:
 		// Called when the game starts or when spawned
 		virtual void BeginPlay() override;
+
 
 	public:
 
@@ -38,6 +42,8 @@ class BATTLEBLASTER_API ATank : public ABasePawn
 		void RotateInput(const FInputActionValue& value);
 
 		void FireInput(const FInputActionValue& value);
+
+		APlayerController* playerController;
 
 		UPROPERTY(EditAnywhere, Category = "Input")
 		class UInputMappingContext* DefaultMappingContext; // Forward declaration improves the performance of the build
@@ -63,4 +69,7 @@ class BATTLEBLASTER_API ATank : public ABasePawn
 		UPROPERTY(EditAnywhere)	
 		float TurnRate = 45.f;
 
+		void HandleDestruction() override;
+		void SetPlayerEnabled(bool enabled);
+		const bool GetIsAlive() { return isAlive; }
 };

@@ -28,6 +28,8 @@ public:
 
 	void FireBullet();
 
+	void HandleDestruction() override;
+
 	ATank* Tank;
 
 	UPROPERTY(EditAnywhere)

@@ -21,7 +21,22 @@ protected:
 
 public:
 
+	UPROPERTY(EditAnywhere)
+	float GameOverDelay = 3.0f;
+
+	UPROPERTY(EditAnywhere)
+	int32 gameplayTimer = 3;
+
+	int32 countdownSeconds;
+
+	FTimerHandle CountdownTimerHandle;
+
 	void ActorDied(AActor* DeadActor);
 	ATank* Tank;
 	int32 TowerCount;
+	bool victory = false; 
+
+	void OnGameOvertimeout();
+
+	void OnCountdownTimeout();
 };

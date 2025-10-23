@@ -11,7 +11,7 @@ void ATank::BeginPlay()
 
 	// Every pawn has a player controller we try to acces it here.
 	// PlayerControllers are used by human players to control Pawns.
-	auto playerController = Cast<APlayerController>(Controller);
+	playerController = Cast<APlayerController>(Controller);
 
 
 	if (playerController)
@@ -33,6 +33,8 @@ void ATank::BeginPlay()
 				subSystem->AddMappingContext(DefaultMappingContext, 0);
 			}
 		}
+
+		SetPlayerEnabled(false);
 	}
 }
 
@@ -49,8 +51,6 @@ void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Creating a line trace to the cursor everyframe
-	auto playerController = static_cast<APlayerController*>(GetController());
 
 	if (playerController)
 	{
@@ -59,13 +59,6 @@ void ATank::Tick(float DeltaTime)
 		
 		// we do an impact point trace and rotate the turret to there
 		auto impactPoint = HitResult.ImpactPoint;
-		DrawDebugSphere(
-			GetWorld(),
-			impactPoint,
-			25.f,
-			12,
-			FColor::Red
-		);
 		RotateTurret(impactPoint);
 	}
 }
@@ -109,4 +102,34 @@ void ATank::FireInput(const FInputActionValue& /*value*/)
 {
 	UE_LOG(LogTemp, Display, TEXT("Fire Input received by Tank"));
 	Fire();
+}
+
+void ATank::HandleDestruction()
+{
+	Super::HandleDestruction();
+	
+	// Hide the actor
+	SetActorHiddenInGame(true);
+
+	// Disable all of the ticks this object calls
+	SetActorTickEnabled(false);	
+	SetPlayerEnabled(false);
+	isAlive = false;
+}
+
+void ATank::SetPlayerEnabled(bool enabled)
+{
+	if (playerController)
+	{
+		if (enabled)
+		{
+			playerController->SetShowMouseCursor(true);
+			EnableInput(playerController);
+		}
+		else
+		{
+			playerController->SetShowMouseCursor(false);
+			DisableInput(playerController);
+		}
+	}
 }

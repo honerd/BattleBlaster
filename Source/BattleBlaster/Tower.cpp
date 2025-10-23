@@ -36,8 +36,15 @@ void ATower::Tick(float DeltaTime)
 void ATower::FireBullet()
 {
 	auto TankLocation = Tank->GetActorLocation();
-	if (FVector::Dist(GetActorLocation(), TankLocation) <= FireRange)
+	if (FVector::Dist(GetActorLocation(), TankLocation) <= FireRange && Tank->GetIsAlive())
 	{
 		Fire();
 	}
+}
+
+void ATower::HandleDestruction()
+{
+	Super::HandleDestruction();
+
+	this->Destroy();
 }
